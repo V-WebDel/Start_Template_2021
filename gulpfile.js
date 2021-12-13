@@ -10,6 +10,9 @@ const sourcemaps    = require('gulp-sourcemaps');
 const cleancss      = require('gulp-clean-css');
 const pug           = require('gulp-pug');
 const formatHtml    = require('gulp-format-html');
+const imagemin      = require('gulp-imagemin');
+const imgCompress   = require('imagemin-jpeg-recompress');
+const imgPngquant   = require('imagemin-pngquant');
 const webpp         = require('gulp-webp');
 const svgsprite     = require('gulp-svg-sprite');
 const svgmin        = require('gulp-svgmin');
@@ -75,7 +78,7 @@ function mainstyles() {
     .pipe(sass().on("error", sass.logError))
     .pipe(concat('main.css'))
     .pipe(autoprefixer({ overrideBrowserslist: ['last 10 versions'], grid: true })) // Создадим префиксы с помощью Autoprefixer
-    .pipe(cleancss( { level: { 1: { specialComments: 0 } }, format: 'beautify' } )) // Минифицируем стили
+    .pipe(cleancss( { level: { 1: { specialComments: 0 } } } )) // Минифицируем стили
     .pipe(sourcemaps.write('.'))
     .pipe(dest('app/css/')) // 
     .pipe(browserSync.stream()) // Триггер обновления страницы
@@ -93,7 +96,17 @@ function pug2html() {
 
 function images() {
     return src('app/img/**/*') // Источник изображений
-    .pipe(dest('dist/img/')) // Выгружаем оптимизированные изображения в папку назначения
+        .pipe(newer('dist/img/')) // Проверяем, было ли изменено (сжато) изображение ранее
+        .pipe(imagemin([ // Сжимаем и оптимизируем изображения
+                imgCompress({
+                progressive: true,
+                min: 70,
+                max: 75,
+                }),
+                imgPngquant({quality: [0.7, 0.75]})
+            ])
+        )
+        .pipe(dest('dist/img/')) // Выгружаем оптимизированные изображения в папку назначения
 }
 
 
@@ -104,6 +117,14 @@ function webp() {
         'app/img/**/*.jpeg',
         'app/img/**/*.jpg',
     ])
+    .pipe(imagemin([ // Сжимаем и оптимизируем изображения
+        imgCompress({
+        progressive: true,
+        min: 70,
+        max: 75,
+        }),
+        imgPngquant({quality: [0.7, 0.75]})
+    ]))
     .pipe(webpp())
     .pipe(dest('app/img/webp/'))
 }
@@ -139,6 +160,7 @@ function buildcopy() {
         'app/css/**/*.css',
         'app/css/**/*.map',
         'app/js/**/*.js',
+        'app/favicons/**/*',
         'app/fonts/**/*',
     ], { base: 'app'})
     .pipe(dest('dist'));
@@ -148,7 +170,7 @@ function startwatch() {
     watch(['app/scss/**/*'], mainstyles);
     watch(['app/js/main.js']).on('change', browserSync.reload);;
     watch(['app/pug/**/*.pug'], pug2html);
-    watch(['app/img/**/*'], images);
+    // watch(['app/img/**/*'], images); // Изменения в изображениях
 }
 
 
