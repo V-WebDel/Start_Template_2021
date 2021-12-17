@@ -93,20 +93,19 @@ function pug2html() {
     .pipe(browserSync.stream()) // Триггер обновления страницы
 }
 
-
 function images() {
     return src('app/img/**/*') // Источник изображений
-        .pipe(newer('dist/img/')) // Проверяем, было ли изменено (сжато) изображение ранее
-        .pipe(imagemin([ // Сжимаем и оптимизируем изображения
-                imgCompress({
-                progressive: true,
-                min: 70,
-                max: 75,
-                }),
-                imgPngquant({quality: [0.7, 0.75]})
-            ])
-        )
-        .pipe(dest('dist/img/')) // Выгружаем оптимизированные изображения в папку назначения
+		.pipe(newer('dist/img/')) // Проверяем, было ли изменено (сжато) изображение ранее
+		.pipe(imagemin([ // Сжимаем и оптимизируем изображения
+				imgCompress({
+				progressive: true,
+				min: 70,
+				max: 75,
+				}),
+				imgPngquant({quality: [0.7, 0.75]})
+			])
+		)
+		.pipe(dest('dist/img/')) // Выгружаем оптимизированные изображения в папку назначения
 }
 
 
@@ -141,7 +140,7 @@ function svgSprite() {
     }))
     .pipe(svgsprite({
             mode: {
-                symbol: {        
+                symbol: {
                     sprite: "../sprite.svg"  // Имя файла SVG-спрайта
                 }
             }
