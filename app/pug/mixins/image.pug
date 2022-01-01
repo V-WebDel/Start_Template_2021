@@ -1,6 +1,6 @@
-//- mixins добавление изображений через тег picture
+//- mixins добавление изображений через тег <img>
 
-mixin image(path, name, alt, title, type)
-  img(src="./img/" + path + name + "." + type srcset="./img/" + path + name + "@2x." + type + " 2x" alt=alt title=title)&attributes(attributes)
+mixin image(path, name, type, alt, title)
+  img(src="./img/" + path + name + "." + type srcset="./img/webp/" + path + name + ".webp" alt=alt title=title loading="lazy")&attributes(attributes)
     
-//- +image('Путь до изображения', 'Название изображения', 'alt', 'title', 'формат файлов')(class="image")
+//- +image('Путь до изображения', 'Название изображения', 'alt', 'title', 'формат файлов')
